@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>bIAnca Viaje Preventivo - DEMO</title>
+  <meta name="description" content="Todo el viaje preventivo en un solo lugar: encuesta, orden médica, prestador y telemedicina.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23c471f5'/><text x='50' y='60' font-size='60' font-weight='bold' fill='white' text-anchor='middle'>b</text></svg>">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --gradient-start: #c471f5;
+      --gradient-end: #00c6ff;
+      --accent: #c471f5;
+      --accent-dark: #a64fd4;
+      --accent-light: #877df6;
+      --accent-soft: #EDEDFF;
+      --night: #28255b;
+      --on-night: #e9f2f0;
+      --gold: #877df6;
+      --gold-soft: #EDEDFF;
+      --signal: #ef4444;
+      --signal-soft: #fee2e2;
+      --blue: #3b82f6;
+      --blue-soft: #dbeafe;
+      --bg: #f8fafc;
+      --panel: #f1f5f9;
+      --surface: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    /* Gradiente de marca */
+    .gradient-brand {
+      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    }
+
+    /* Botón primario */
+    .btn-primary {
+      @apply w-full py-3 px-4 rounded-full font-bold text-white transition-all;
+      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+    }
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Focus accesible */
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--gradient-start);
+      outline-offset: 2px;
+    }
+
+    /* Smooth transitions */
+    * {
+      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    /* Scrollbar personalizado */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--panel);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--gradient-start);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+
+  <!-- Contenedor principal -->
+  <div id="app" class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex h-16 items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img src="assets/img/gomind-logo.png" alt="GoMind" class="h-8 w-auto">
+            <h1 class="text-xl font-bold text-slate-900 hidden sm:block">bIAnca</h1>
+          </div>
+
+          <!-- Tabs -->
+          <nav class="flex gap-1" role="tablist">
+            <button type="button" role="tab" data-tab="viaje" aria-selected="true"
+              class="px-4 py-2 text-sm font-semibold rounded-t-lg transition"
+              style="color: var(--gradient-start);">
+              Viaje
+            </button>
+            <button type="button" role="tab" data-tab="operacion" aria-selected="false"
+              class="px-4 py-2 text-sm font-semibold rounded-t-lg text-slate-600 hover:text-slate-900 transition">
+              Operación TI
+            </button>
+            <button type="button" role="tab" data-tab="competencia" aria-selected="false"
+              class="px-4 py-2 text-sm font-semibold rounded-t-lg text-slate-600 hover:text-slate-900 transition">
+              Competencia
+            </button>
+          </nav>
+
+          <div class="text-sm text-slate-500">
+            Demo
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenido principal -->
+    <main class="flex-1">
+
+      <!-- PESTAÑA: VIAJE -->
+      <div id="view-viaje" class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+          <!-- Columna izquierda: navegación y data -->
+          <div class="lg:col-span-1">
+            <!-- Información actual -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 mb-6 shadow-sm">
+              <h3 class="font-bold text-lg mb-4">Tu caso actual</h3>
+              <div class="space-y-3 text-sm">
+                <div>
+                  <span class="text-slate-600">Nombre</span>
+                  <div class="font-semibold" id="info-nombre">—</div>
+                </div>
+                <div>
+                  <span class="text-slate-600">Perfil</span>
+                  <div class="font-semibold" id="info-perfil">—</div>
+                </div>
+                <div>
+                  <span class="text-slate-600">Previsión</span>
+                  <div class="font-semibold" id="info-prevision">—</div>
+                </div>
+                <div>
+                  <span class="text-slate-600">Exámenes asignados</span>
+                  <div class="font-bold text-lg" style="color: var(--gradient-start);" id="info-examenes">0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Presets -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 mb-6 shadow-sm">
+              <h3 class="font-bold text-lg mb-4">Probar perfiles</h3>
+              <div class="space-y-2">
+                <button class="btn-preset w-full text-left p-3 rounded-lg border border-slate-200 hover:border-slate-300 text-slate-700 text-sm font-medium" data-preset="0">
+                  Camila Rojas · 44 · FONASA C
+                </button>
+                <button class="btn-preset w-full text-left p-3 rounded-lg border border-slate-200 hover:border-slate-300 text-slate-700 text-sm font-medium" data-preset="1">
+                  Rodrigo Fuentes · 56 · Banmédica
+                </button>
+                <button class="btn-preset w-full text-left p-3 rounded-lg border border-slate-200 hover:border-slate-300 text-slate-700 text-sm font-medium" data-preset="2">
+                  Javiera Soto · 28 · FONASA A
+                </button>
+                <button id="btn-reset" class="w-full mt-3 py-2 px-3 rounded-lg border-2" style="border-color: var(--gradient-start); color: var(--gradient-start);">
+                  Reiniciar
+                </button>
+              </div>
+            </div>
+
+            <!-- Steps -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+              <h3 class="font-bold text-lg mb-4">Etapas</h3>
+              <div id="journey" class="space-y-2"></div>
+            </div>
+          </div>
+
+          <!-- Columna central/derecha: Teléfono -->
+          <div class="lg:col-span-2">
+            <div class="mx-auto" style="max-width: 420px;">
+              <!-- Simulación teléfono -->
+              <div class="bg-black rounded-3xl p-3 shadow-2xl">
+                <div class="bg-slate-50 rounded-3xl overflow-hidden border-4 border-black" style="aspect-ratio: 9/16;">
+
+                  <!-- Status bar -->
+                  <div class="bg-white border-b border-slate-200 px-4 py-2 flex justify-between items-center text-xs font-semibold text-slate-700">
+                    <span>9:41</span>
+                    <span id="screen-title" class="font-bold">bIAnca</span>
+                    <span>100%</span>
+                  </div>
+
+                  <!-- Progress bar -->
+                  <div class="h-1 bg-slate-200">
+                    <div id="progress-bar" class="h-full" style="background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end)); width: 0%;"></div>
+                  </div>
+
+                  <!-- Pantalla principal -->
+                  <div id="screen" class="h-full overflow-y-auto bg-white" style="max-height: calc(100% - 100px); padding: 16px;">
+                    <div class="text-center text-slate-500 py-8">Cargando...</div>
+                  </div>
+
+                  <!-- Pie (botones) -->
+                  <div id="screen-footer" class="bg-slate-50 border-t border-slate-200 px-4 py-3 space-y-2" style="max-height: 100px; overflow-y-auto;">
+                    <button class="btn-primary" id="btn-next">Siguiente</button>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Info debajo del teléfono -->
+              <div class="mt-6 text-center text-xs text-slate-500 space-y-1">
+                <p>Paso <span id="step-info">1</span> de 11</p>
+                <p id="screen-desc">Inicio</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA: OPERACIÓN -->
+      <div id="view-operacion" hidden class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
+          <h2 class="text-3xl font-bold mb-4">Cómo opera bIAnca</h2>
+          <p class="text-slate-600 mb-6">Vista técnica para el equipo TI: qué sucede en cada paso del viaje.</p>
+
+          <div id="ops-container" class="space-y-6">
+            <!-- Se llena dinámicamente -->
+          </div>
+
+          <div class="mt-8 pt-8 border-t border-slate-200">
+            <h3 class="text-xl font-bold mb-4">Payload JSON del caso actual</h3>
+            <div class="bg-slate-50 p-4 rounded-lg overflow-x-auto">
+              <pre id="json-payload" class="text-xs font-mono text-slate-700" style="max-height: 400px; overflow-y: auto;"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA: COMPETENCIA -->
+      <div id="view-competencia" hidden class="max-w-7xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
+          <h2 class="text-3xl font-bold mb-4">Competencia y Benchmark</h2>
+          <p class="text-slate-600 mb-6">Análisis de plataformas similares y qué toma bIAnca de cada una.</p>
+
+          <div id="comp-container" class="space-y-6">
+            <!-- Se llena dinámicamente -->
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // ===================== DATA & CONSTANTS =====================
+    const PRESETS = [
+      {
+        profile: { nombre: 'Camila Rojas', rut: '16.482.391-5', sexo: 'F', edad: 44, prevision: 'FONASA', tramo: 'C', comuna: 'Providencia' },
+        ans: { tabaco: 'ex', actividad: 'bajo', alcohol: 'ocasional', peso: 72, talla: 162, dx: ['ninguno'], fam: ['dm', 'ccr'], animo: '1', pap: 'antiguo', mamo: 'nunca' }
+      },
+      {
+        profile: { nombre: 'Rodrigo Fuentes', rut: '12.904.551-K', sexo: 'M', edad: 56, prevision: 'ISAPRE', isapre: 'Banmédica', comuna: 'Ñuñoa' },
+        ans: { tabaco: 'si', actividad: 'bajo', alcohol: 'frecuente', peso: 92, talla: 175, dx: ['hta'], fam: ['cv'], animo: '2', pap: null, mamo: null }
+      },
+      {
+        profile: { nombre: 'Javiera Soto', rut: '20.115.734-2', sexo: 'F', edad: 28, prevision: 'FONASA', tramo: 'A', comuna: 'San Bernardo' },
+        ans: { tabaco: 'no', actividad: 'ok', alcohol: 'ocasional', peso: 58, talla: 165, dx: ['ninguno'], fam: ['ninguno'], animo: '0', pap: 'nunca', mamo: null }
+      }
+    ];
+
+    const STEPS = [
+      { title: 'Ingreso a bIAnca', desc: 'Entra con tu RUT' },
+      { title: 'Tu perfil', desc: 'Sexo, edad, previsión y comuna' },
+      { title: 'Screening de salud', desc: 'Hábitos y antecedentes' },
+      { title: 'Tu batería preventiva', desc: 'Exámenes asignados' },
+      { title: 'Orden médica', desc: 'Generada y firmada' },
+      { title: 'Prestador y bono', desc: 'Dónde atenderte y qué pagas' },
+      { title: 'Agenda tu hora', desc: 'Elige día y hora' },
+      { title: 'Confirmación', desc: 'Folio, preparación y avisos' },
+      { title: 'Tus resultados', desc: 'Valores con semáforo' },
+      { title: 'Telemedicina', desc: 'Revisión con médico' },
+      { title: 'Mi plan de salud', desc: 'Pauta nutricional y hábitos' }
+    ];
+
+    const EXAMENES_BASE = [
+      { code: 'LAB-HEM', name: 'Hemograma', tipo: 'lab' },
+      { code: 'LAB-BIO', name: 'Perfil bioquímico', tipo: 'lab' },
+      { code: 'LAB-LIP', name: 'Perfil lipídico', tipo: 'lab' },
+      { code: 'LAB-GLI', name: 'Glicemia en ayunas', tipo: 'lab' },
+      { code: 'LAB-ORI', name: 'Orina completa', tipo: 'lab' },
+      { code: 'EVA-MED', name: 'Evaluación médica preventiva', tipo: 'eval' }
+    ];
+
+    // ===================== STATE MANAGEMENT =====================
+    const STORAGE_KEY = 'bianca_demo_state';
+
+    function getDefaultState() {
+      return {
+        tab: 'viaje',
+        step: 0,
+        profile: { ...PRESETS[0].profile },
+        ans: { ...PRESETS[0].ans },
+        provider: null,
+        day: null,
+        slot: null,
+        folio: null,
+        orden: null
+      };
+    }
+
+    let STATE = loadState();
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        return saved ? { ...getDefaultState(), ...JSON.parse(saved) } : getDefaultState();
+      } catch {
+        return getDefaultState();
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+    }
+
+    function updateState(updates) {
+      STATE = { ...STATE, ...updates };
+      saveState();
+      render();
+    }
+
+    // ===================== LOGIC =====================
+    function getBattery() {
+      const { sexo, edad } = STATE.profile;
+      const { ans } = STATE;
+      const items = [...EXAMENES_BASE];
+
+      // Agregar según sexo y edad
+      if (edad >= 40) {
+        items.push({ code: 'PRO-ECG', name: 'Electrocardiograma', tipo: 'proc' });
+      }
+
+      // Mujer: PAP y mamografía
+      if (sexo === 'F' && edad >= 25 && edad <= 64 && ans.pap !== 'reciente') {
+        items.push({ code: 'PRO-PAP', name: 'Papanicolaou', tipo: 'proc' });
+      }
+      if (sexo === 'F' && edad >= 40 && ans.mamo !== 'reciente') {
+        items.push({ code: 'IMG-MAM', name: 'Mamografía', tipo: 'img' });
+      }
+
+      // Según respuestas
+      if (ans.tabaco === 'si') {
+        items.push({ code: 'PRO-ESP', name: 'Espirometría', tipo: 'proc' });
+      }
+      if (ans.alcohol === 'frecuente') {
+        items.push({ code: 'LAB-HEP', name: 'Perfil hepático', tipo: 'lab' });
+      }
+      if (+ans.animo >= 2) {
+        items.push({ code: 'EVA-SME', name: 'Evaluación de salud mental', tipo: 'eval' });
+      }
+
+      return items;
+    }
+
+    function getIMC() {
+      const { peso, talla } = STATE.ans;
+      if (!peso || !talla) return 0;
+      return peso / ((talla / 100) ** 2);
+    }
+
+    // ===================== RENDER =====================
+    function render() {
+      renderHeader();
+      renderPhone();
+      renderSide();
+      renderOps();
+      renderComp();
+    }
+
+    function renderHeader() {
+      // Actualizar tab activo
+      document.querySelectorAll('[role="tab"]').forEach(btn => {
+        const isActive = btn.dataset.tab === STATE.tab;
+        btn.setAttribute('aria-selected', isActive);
+        if (isActive) {
+          btn.style.color = 'var(--gradient-start)';
+          btn.style.borderBottom = '3px solid var(--gradient-start)';
+        } else {
+          btn.style.color = 'rgb(100, 116, 139)';
+          btn.style.borderBottom = 'none';
+        }
+      });
+
+      // Mostrar/ocultar vistas
+      document.getElementById('view-viaje').hidden = STATE.tab !== 'viaje';
+      document.getElementById('view-operacion').hidden = STATE.tab !== 'operacion';
+      document.getElementById('view-competencia').hidden = STATE.tab !== 'competencia';
+    }
+
+    function renderSide() {
+      const { profile, ans } = STATE;
+      const battery = getBattery();
+
+      document.getElementById('info-nombre').textContent = profile.nombre || '—';
+      document.getElementById('info-perfil').textContent = `${profile.sexo === 'F' ? 'Mujer' : 'Hombre'}, ${profile.edad} años`;
+      const prevText = profile.prevision === 'FONASA' ? `FONASA ${profile.tramo}` : `${profile.isapre}`;
+      document.getElementById('info-prevision').textContent = prevText;
+      document.getElementById('info-examenes').textContent = battery.length;
+
+      // Actualizar journey
+      const journey = document.getElementById('journey');
+      journey.innerHTML = STEPS.map((step, i) => `
+        <button class="journey-item w-full text-left p-3 rounded-lg transition ${i === STATE.step ? 'bg-slate-100 border-l-4' : 'border-l-4 border-transparent'}"
+          style="${i === STATE.step ? 'border-color: var(--gradient-start);' : ''}"
+          data-step="${i}">
+          <div class="text-xs font-semibold" style="color: var(--muted);">Paso ${i + 1}</div>
+          <div class="font-bold text-sm">${step.title}</div>
+          <div class="text-xs" style="color: var(--muted);">${step.desc}</div>
+        </button>
+      `).join('');
+    }
+
+    function renderPhone() {
+      const content = renderPhoneContent();
+      document.getElementById('screen').innerHTML = content.body;
+      document.getElementById('screen-footer').innerHTML = content.footer;
+      document.getElementById('screen-title').textContent = STEPS[STATE.step]?.title || 'bIAnca';
+      document.getElementById('step-info').textContent = STATE.step + 1;
+      document.getElementById('screen-desc').textContent = STEPS[STATE.step]?.desc || '';
+      document.getElementById('progress-bar').style.width = (STATE.step / STEPS.length * 100) + '%';
+    }
+
+    function renderPhoneContent() {
+      const battery = getBattery();
+
+      if (STATE.step === 0) {
+        return {
+          body: `
+            <div class="text-center py-8">
+              <img src="assets/img/bianca.png" alt="bIAnca" class="w-24 h-24 mx-auto mb-4 rounded-full object-cover">
+              <h2 class="text-2xl font-bold mb-2">¡Hola, ${STATE.profile.nombre.split(' ')[0]}!</h2>
+              <p class="text-slate-600 text-sm mb-4">Tu empresa activó un programa preventivo. En 5 minutos tienes tus exámenes, tu orden y tu bono.</p>
+              <input type="text" value="${STATE.profile.rut}" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm mb-3" placeholder="Tu RUT" id="input-rut">
+              <input type="password" value="••••••" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" placeholder="Clave">
+            </div>
+          `,
+          footer: '<button class="btn-primary" id="btn-step">Ingresar</button>'
+        };
+      }
+
+      if (STATE.step === 1) {
+        return {
+          body: `
+            <div class="space-y-4">
+              <div>
+                <label class="text-xs font-bold text-slate-600">Nombre</label>
+                <input type="text" value="${STATE.profile.nombre}" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" id="input-nombre">
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs font-bold text-slate-600">Sexo</label>
+                  <select id="input-sexo" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+                    <option value="F" ${STATE.profile.sexo === 'F' ? 'selected' : ''}>Femenino</option>
+                    <option value="M" ${STATE.profile.sexo === 'M' ? 'selected' : ''}>Masculino</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs font-bold text-slate-600">Edad</label>
+                  <input type="number" min="18" max="90" value="${STATE.profile.edad}" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" id="input-edad">
+                </div>
+              </div>
+              <div>
+                <label class="text-xs font-bold text-slate-600">Previsión</label>
+                <select id="input-prevision" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+                  <option value="FONASA" ${STATE.profile.prevision === 'FONASA' ? 'selected' : ''}>FONASA</option>
+                  <option value="ISAPRE" ${STATE.profile.prevision === 'ISAPRE' ? 'selected' : ''}>ISAPRE</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-bold text-slate-600">Comuna</label>
+                <input type="text" value="${STATE.profile.comuna}" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" id="input-comuna">
+              </div>
+            </div>
+          `,
+          footer: '<button class="btn-primary" id="btn-step">Continuar</button>'
+        };
+      }
+
+      if (STATE.step === 2) {
+        return {
+          body: `
+            <div class="space-y-4">
+              <h3 class="font-bold">¿Fumas?</h3>
+              <select id="input-tabaco" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+                <option value="no" ${STATE.ans.tabaco === 'no' ? 'selected' : ''}>No fumo</option>
+                <option value="ex" ${STATE.ans.tabaco === 'ex' ? 'selected' : ''}>Fumé pero dejé</option>
+                <option value="si" ${STATE.ans.tabaco === 'si' ? 'selected' : ''}>Sí, fumo</option>
+              </select>
+
+              <h3 class="font-bold mt-4">Actividad física semanal</h3>
+              <select id="input-actividad" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+                <option value="bajo" ${STATE.ans.actividad === 'bajo' ? 'selected' : ''}>Menos de 150 min</option>
+                <option value="ok" ${STATE.ans.actividad === 'ok' ? 'selected' : ''}>150+ minutos</option>
+              </select>
+
+              <h3 class="font-bold mt-4">Alcohol</h3>
+              <select id="input-alcohol" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+                <option value="nunca" ${STATE.ans.alcohol === 'nunca' ? 'selected' : ''}>Nunca</option>
+                <option value="ocasional" ${STATE.ans.alcohol === 'ocasional' ? 'selected' : ''}>1-2 veces/semana</option>
+                <option value="frecuente" ${STATE.ans.frecuente === 'frecuente' ? 'selected' : ''}>3+ veces/semana</option>
+              </select>
+
+              <h3 class="font-bold mt-4">Ánimo (últimas 2 semanas)</h3>
+              <select id="input-animo" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+                <option value="0" ${STATE.ans.animo === '0' ? 'selected' : ''}>Nunca</option>
+                <option value="1" ${STATE.ans.animo === '1' ? 'selected' : ''}>Varios días</option>
+                <option value="2" ${STATE.ans.animo === '2' ? 'selected' : ''}>Más de la mitad</option>
+              </select>
+            </div>
+          `,
+          footer: '<button class="btn-primary" id="btn-step">Generar batería</button>'
+        };
+      }
+
+      if (STATE.step === 3) {
+        return {
+          body: `
+            <div class="space-y-3">
+              <div class="p-4 rounded-lg" style="background: var(--accent-soft);">
+                <div class="text-2xl font-bold" style="color: var(--gradient-start);">${battery.length}</div>
+                <div class="text-sm font-semibold text-slate-600">exámenes asignados</div>
+              </div>
+              <div class="space-y-2">
+                ${battery.map(e => `<div class="p-2 bg-slate-50 rounded border border-slate-200"><div class="font-semibold text-sm">${e.name}</div><div class="text-xs text-slate-600">${e.code}</div></div>`).join('')}
+              </div>
+              <p class="text-xs text-slate-600 mt-4">Los exámenes se basan en tu sexo, edad y respuestas.</p>
+            </div>
+          `,
+          footer: '<button class="btn-primary" id="btn-step">Generar orden médica</button>'
+        };
+      }
+
+      if (STATE.step === 4) {
+        if (!STATE.orden) STATE.orden = 'OM-26' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+        return {
+          body: `
+            <div class="space-y-4">
+              <div class="p-4 rounded-lg border-2" style="border-color: var(--gradient-start); background: var(--accent-soft);">
+                <div class="text-sm font-bold" style="color: var(--gradient-start);">✓ Orden generada y firmada</div>
+                <div class="text-2xl font-bold mt-2">${STATE.orden}</div>
+              </div>
+              <div class="p-3 bg-slate-50 rounded text-sm">
+                <div class="font-semibold">Dra. Paula Contreras Vega</div>
+                <div class="text-xs text-slate-600">Medicina Familiar · GoMind</div>
+              </div>
+              <div class="space-y-2 text-sm">
+                <div><span class="font-semibold">Diagnóstico:</span> Z00.0 (Examen preventivo)</div>
+                <div><span class="font-semibold">Prestaciones:</span> ${battery.length} exámenes</div>
+              </div>
+            </div>
+          `,
+          footer: '<button class="btn-primary" id="btn-step">Elegir prestador</button>'
+        };
+      }
+
+      if (STATE.step === 5) {
+        return {
+          body: `
+            <div class="space-y-3">
+              <h3 class="font-bold">Prestadores disponibles</h3>
+              <button class="prov-card w-full text-left p-3 border-2 border-slate-200 rounded-lg hover:border-slate-400 transition" data-prov="gomind" style="${STATE.provider === 'gomind' ? 'border-color: var(--gradient-start);' : ''}">
+                <div class="font-semibold">Operativo GoMind en tu empresa</div>
+                <div class="text-xs text-slate-600">Copago cubierto por tu empresa</div>
+                <div class="text-sm font-bold mt-2" style="color: var(--gradient-start);">$0</div>
+              </button>
+              <button class="prov-card w-full text-left p-3 border-2 border-slate-200 rounded-lg hover:border-slate-400 transition" data-prov="mle" style="${STATE.provider === 'mle' ? 'border-color: var(--gradient-start);' : ''}">
+                <div class="font-semibold">RedSalud Providencia</div>
+                <div class="text-xs text-slate-600">FONASA Libre Elección · a 2.5 km</div>
+                <div class="text-sm font-bold mt-2" style="color: var(--gradient-start);">$15.900</div>
+              </button>
+              <button class="prov-card w-full text-left p-3 border-2 border-slate-200 rounded-lg hover:border-slate-400 transition" data-prov="isapre" style="${STATE.provider === 'isapre' ? 'border-color: var(--gradient-start);' : ''}">
+                <div class="font-semibold">Vidaintegra Providencia</div>
+                <div class="text-xs text-slate-600">Preferente Banmédica · a 1.2 km</div>
+                <div class="text-sm font-bold mt-2" style="color: var(--gradient-start);">$8.500</div>
+              </button>
+              <p class="text-xs text-slate-600 mt-4">Los precios incluyen bonificación de tu previsión.</p>
+            </div>
+          `,
+          footer: `<button class="btn-primary" id="btn-step" ${!STATE.provider ? 'disabled' : ''}>Agendar</button>`
+        };
+      }
+
+      if (STATE.step === 6) {
+        return {
+          body: `
+            <div class="space-y-4">
+              <h3 class="font-bold">Elige día y hora</h3>
+              <div>
+                <label class="text-xs font-bold text-slate-600 block mb-2">Día</label>
+                <div class="grid grid-cols-4 gap-2">
+                  ${['Lun 24', 'Mar 25', 'Mié 26', 'Jue 27', 'Vie 28'].map((d, i) => `
+                    <button class="day-btn p-2 rounded border-2 border-slate-200 text-xs font-semibold transition" data-day="${i}" style="${STATE.day === i ? 'border-color: var(--gradient-start);' : ''}">
+                      ${d}
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+              <div>
+                <label class="text-xs font-bold text-slate-600 block mb-2">Hora</label>
+                <div class="grid grid-cols-3 gap-2">
+                  ${['08:00', '08:30', '09:00', '09:30', '10:00', '10:30'].map(h => `
+                    <button class="slot-btn p-2 rounded border-2 border-slate-200 text-xs font-semibold transition" data-slot="${h}" style="${STATE.slot === h ? 'border-color: var(--gradient-start);' : ''}">
+                      ${h}
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+              <p class="text-xs text-slate-600">Solo mañanas por tu examen de sangre (requiere ayuno).</p>
+            </div>
+          `,
+          footer: `<button class="btn-primary" id="btn-step" ${!STATE.slot ? 'disabled' : ''}>Confirmar y emitir bono</button>`
+        };
+      }
+
+      if (STATE.step === 7) {
+        if (!STATE.folio) STATE.folio = 'BE-482' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+        return {
+          body: `
+            <div class="space-y-4">
+              <div class="p-4 rounded-lg" style="background: var(--accent-soft);">
+                <div class="text-sm font-bold" style="color: var(--gradient-start);">✓ Reserva confirmada</div>
+              </div>
+              <div class="bg-slate-50 p-4 rounded-lg space-y-2 text-sm">
+                <div><span class="text-slate-600">Folio bono:</span> <span class="font-bold">${STATE.folio}</span></div>
+                <div><span class="text-slate-600">Cuando:</span> <span class="font-bold">Lunes 24 · ${STATE.slot}</span></div>
+                <div><span class="text-slate-600">Dónde:</span> <span class="font-bold">${STATE.provider === 'gomind' ? 'Operativo GoMind' : 'Prestador elegido'}</span></div>
+                <div><span class="text-slate-600">Copago:</span> <span class="font-bold" style="color: var(--signal);">$15.900</span></div>
+              </div>
+              <div class="p-3 bg-slate-50 rounded text-sm">
+                <div class="font-bold mb-2">Tu preparación:</div>
+                <ul class="text-xs space-y-1 text-slate-600">
+                  <li>• Ayuno de 8 horas antes</li>
+                  <li>• Lleva tu cédula</li>
+                  <li>• Te avisaremos por WhatsApp</li>
+                </ul>
+              </div>
+            </div>
+          `,
+          footer: '<button class="btn-primary" id="btn-step">Simular: ya me hice los exámenes</button>'
+        };
+      }
+
+      if (STATE.step === 8) {
+        return {
+          body: `
+            <div class="space-y-4">
+              <div class="p-4 rounded-lg" style="background: var(--accent-soft);">
+                <div class="text-sm font-bold" style="color: var(--gradient-start);">✓ Resultados disponibles</div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center gap-3 p-2 rounded border border-slate-200">
+                  <div class="w-3 h-3 rounded-full" style="background: #10b981;"></div>
+                  <div class="flex-1">
+                    <div class="text-sm font-semibold">Hemograma</div>
+                    <div class="text-xs text-slate-600">13.6 g/dL · Normal</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded border border-slate-200">
+                  <div class="w-3 h-3 rounded-full" style="background: #fbbf24;"></div>
+                  <div class="flex-1">
+                    <div class="text-sm font-semibold">Glicemia</div>
+                    <div class="text-xs text-slate-600">108 mg/dL · Atención</div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 p-2 rounded border border-slate-200">
+                  <div class="w-3 h-3 rounded-full" style="background: #10b981;"></div>
+                  <div class="flex-1">
+                    <div class="text-sm font-semibold">Perfil lipídico</div>
+                    <div class="text-xs text-slate-600">Normal</div>
+                  </div>
+                </div>
+              </div>
+              <p class="text-xs text-slate-600">1 valor para revisar. Te recomiendo verlo con un médico.</p>
+            </div>
+          `,
+          footer: '<button class="btn-primary" id="btn-step">Ir a telemedicina</button>'
+        };
+      }
+
+      if (STATE.step === 9) {
+        return {
+          body: `
+            <div class="space-y-4">
+              <div class="p-4 rounded-lg text-center" style="background: var(--night); color: var(--on-night);">
+                <div class="text-4xl mb-2">📱</div>
+                <div class="font-bold">Conectando con médico...</div>
+              </div>
+              <div class="bg-slate-50 p-4 rounded-lg space-y-2 text-sm">
+                <div><span class="text-slate-600">Médico:</span> <span class="font-semibold">Dr. Matías Herrera</span></div>
+                <div><span class="text-slate-600">Especialidad:</span> <span class="font-semibold">Telemedicina empresa</span></div>
+                <div><span class="text-slate-600">Tiempo:</span> <span class="font-semibold">5 min</span></div>
+              </div>
+              <div class="space-y-2 text-xs text-slate-600">
+                <div>✓ Tus resultados compartidos</div>
+                <div>✓ Tu orden médica incluida</div>
+                <div>✓ Sin costo para ti</div>
+              </div>
+            </div>
+          `,
+          footer: '<button class="btn-primary" id="btn-step">Finalizar teleconsulta</button>'
+        };
+      }
+
+      if (STATE.step === 10) {
+        return {
+          body: `
+            <div class="space-y-4">
+              <div class="p-4 rounded-lg" style="background: var(--accent-soft);">
+                <div class="text-sm font-bold" style="color: var(--gradient-start);">Tu pauta nutricional está lista</div>
+              </div>
+              <div class="bg-slate-50 p-4 rounded-lg space-y-3 text-sm">
+                <div>
+                  <div class="font-bold">Tus metas</div>
+                  <ul class="text-xs text-slate-600 mt-1">
+                    <li>• Mantener tu peso actual</li>
+                    <li>• 150 minutos de actividad semanal</li>
+                    <li>• Reducir azúcar y harinas</li>
+                  </ul>
+                </div>
+                <div>
+                  <div class="font-bold">Tu plato</div>
+                  <div class="text-xs text-slate-600 mt-1">½ verduras · ¼ proteína · ¼ integrales</div>
+                </div>
+              </div>
+              <div class="p-3 bg-slate-50 rounded text-xs text-slate-600">
+                <div class="font-bold text-slate-900 mb-2">Esta semana</div>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4">
+                  <span>Legumbres 2 veces esta semana</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer mt-1">
+                  <input type="checkbox" class="w-4 h-4">
+                  <span>Frutas y verduras todos los días</span>
+                </label>
+              </div>
+              <p class="text-xs text-slate-600">+250 puntos bIAnca por completar tu viaje preventivo.</p>
+            </div>
+          `,
+          footer: '<button class="btn-primary" id="btn-step">Reiniciar viaje</button>'
+        };
+      }
+
+      return { body: 'Error', footer: '' };
+    }
+
+    function renderOps() {
+      const container = document.getElementById('ops-container');
+      const battery = getBattery();
+      const imc = getIMC();
+
+      container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+            <h4 class="font-bold mb-3">Estado actual</h4>
+            <div class="space-y-2 text-sm">
+              <div><span class="text-slate-600">Paso:</span> <span class="font-semibold">${STEPS[STATE.step].title}</span></div>
+              <div><span class="text-slate-600">Exámenes:</span> <span class="font-semibold">${battery.length}</span></div>
+              <div><span class="text-slate-600">IMC:</span> <span class="font-semibold">${imc.toFixed(1)}</span></div>
+              <div><span class="text-slate-600">Previsión:</span> <span class="font-semibold">${STATE.profile.prevision === 'FONASA' ? `FONASA ${STATE.profile.tramo}` : STATE.profile.isapre}</span></div>
+            </div>
+          </div>
+
+          <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+            <h4 class="font-bold mb-3">Batería asignada</h4>
+            <div class="space-y-1 text-sm">
+              ${battery.map(e => `<div class="text-slate-700"><span class="font-mono text-xs text-slate-600">${e.code}</span> ${e.name}</div>`).join('')}
+            </div>
+          </div>
+
+          <div class="col-span-full bg-slate-50 p-6 rounded-xl border border-slate-200">
+            <h4 class="font-bold mb-3">Eventos generados (timeline)</h4>
+            <div class="space-y-2 text-xs font-mono">
+              ${STATE.step >= 1 ? '<div style="color: var(--gradient-start);">usuario.ingreso</div>' : ''}
+              ${STATE.step >= 2 ? '<div style="color: var(--gradient-start);">perfil.actualizado</div>' : ''}
+              ${STATE.step >= 3 ? '<div style="color: var(--gradient-start);">screening.completado</div>' : ''}
+              ${STATE.step >= 4 ? '<div style="color: var(--gradient-start);">bateria.asignada</div>' : ''}
+              ${STATE.step >= 5 ? '<div style="color: var(--gradient-start);">orden.generada</div>' : ''}
+              ${STATE.step >= 6 ? '<div style="color: var(--gradient-start);">prestador.seleccionado</div>' : ''}
+              ${STATE.step >= 7 ? '<div style="color: var(--gradient-start);">bono.emitido</div>' : ''}
+              ${STATE.step >= 8 ? '<div style="color: var(--gradient-start);">resultados.cargados</div>' : ''}
+              ${STATE.step >= 9 ? '<div style="color: var(--gradient-start);">teleconsulta.finalizada</div>' : ''}
+              ${STATE.step >= 10 ? '<div style="color: var(--gradient-start);">pauta.generada</div>' : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderComp() {
+      const container = document.getElementById('comp-container');
+      container.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+            <h4 class="font-bold mb-2">Besplus (Chile)</h4>
+            <p class="text-sm text-slate-600 mb-3">Operativos preventivos en empresa con laboratorio y medicina general en un solo día.</p>
+            <div class="text-xs" style="color: var(--gradient-start); font-weight: bold;">bIAnca toma: operativo en empresa dentro del viaje</div>
+          </div>
+
+          <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+            <h4 class="font-bold mb-2">Medismart (Latinoamérica)</h4>
+            <p class="text-sm text-slate-600 mb-3">Telemedicina, exámenes a domicilio y farmacia con socios.</p>
+            <div class="text-xs" style="color: var(--gradient-start); font-weight: bold;">bIAnca toma: telemedicina conectada a resultados</div>
+          </div>
+
+          <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+            <h4 class="font-bold mb-2">Mi Fonasa (Chile)</h4>
+            <p class="text-sm text-slate-600 mb-3">Compra de bonos en línea con Clave Única y buscador de prestadores.</p>
+            <div class="text-xs" style="color: var(--gradient-start); font-weight: bold;">bIAnca toma: cálculo del bono y regla de tramos</div>
+          </div>
+
+          <div class="bg-slate-50 p-6 rounded-xl border border-slate-200">
+            <h4 class="font-bold mb-2">Teladoc Health (USA)</h4>
+            <p class="text-sm text-slate-600 mb-3">Atención primaria virtual con plan de cuidado y coordinación.</p>
+            <div class="text-xs" style="color: var(--gradient-start); font-weight: bold;">bIAnca toma: telemedicina con resultados compartidos</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ===================== EVENT LISTENERS =====================
+    document.addEventListener('click', (e) => {
+      // Tabs
+      if (e.target.matches('[role="tab"]')) {
+        const tab = e.target.dataset.tab;
+        updateState({ tab });
+        return;
+      }
+
+      // Presets
+      if (e.target.matches('.btn-preset')) {
+        const idx = parseInt(e.target.dataset.preset);
+        const preset = PRESETS[idx];
+        updateState({
+          profile: { ...preset.profile },
+          ans: { ...preset.ans },
+          step: 0,
+          provider: null,
+          day: null,
+          slot: null,
+          folio: null,
+          orden: null
+        });
+        return;
+      }
+
+      // Reset
+      if (e.target.id === 'btn-reset') {
+        updateState(getDefaultState());
+        return;
+      }
+
+      // Journey
+      if (e.target.matches('.journey-item')) {
+        const step = parseInt(e.target.dataset.step);
+        updateState({ step });
+        return;
+      }
+
+      // Phone buttons
+      if (e.target.id === 'btn-next' || e.target.id === 'btn-step') {
+        // Guardar datos del formulario si existen
+        if (document.getElementById('input-nombre')) {
+          STATE.profile.nombre = document.getElementById('input-nombre').value;
+        }
+        if (document.getElementById('input-sexo')) {
+          STATE.profile.sexo = document.getElementById('input-sexo').value;
+        }
+        if (document.getElementById('input-edad')) {
+          STATE.profile.edad = parseInt(document.getElementById('input-edad').value);
+        }
+        if (document.getElementById('input-prevision')) {
+          STATE.profile.prevision = document.getElementById('input-prevision').value;
+        }
+        if (document.getElementById('input-comuna')) {
+          STATE.profile.comuna = document.getElementById('input-comuna').value;
+        }
+
+        if (document.getElementById('input-tabaco')) {
+          STATE.ans.tabaco = document.getElementById('input-tabaco').value;
+        }
+        if (document.getElementById('input-actividad')) {
+          STATE.ans.actividad = document.getElementById('input-actividad').value;
+        }
+        if (document.getElementById('input-alcohol')) {
+          STATE.ans.alcohol = document.getElementById('input-alcohol').value;
+        }
+        if (document.getElementById('input-animo')) {
+          STATE.ans.animo = document.getElementById('input-animo').value;
+        }
+
+        // Siguiente paso
+        if (STATE.step < STEPS.length - 1) {
+          if (STATE.step === 10) {
+            updateState(getDefaultState());
+          } else {
+            updateState({ step: STATE.step + 1 });
+          }
+        }
+        return;
+      }
+
+      // Prestadores
+      if (e.target.matches('.prov-card')) {
+        const prov = e.target.dataset.prov;
+        updateState({ provider: prov });
+        return;
+      }
+
+      // Días
+      if (e.target.matches('.day-btn')) {
+        const day = parseInt(e.target.dataset.day);
+        updateState({ day, slot: null });
+        return;
+      }
+
+      // Horas
+      if (e.target.matches('.slot-btn')) {
+        const slot = e.target.dataset.slot;
+        updateState({ slot });
+        return;
+      }
+    });
+
+    // Input listeners
+    document.addEventListener('input', (e) => {
+      if (e.target.id === 'input-nombre') {
+        STATE.profile.nombre = e.target.value;
+        saveState();
+      }
+    });
+
+    // ===================== INIT =====================
+    render();
+  </script>
+
+</body>
+</html>
